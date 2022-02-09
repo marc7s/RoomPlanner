@@ -6,6 +6,22 @@
     <body>
         <div class="prop-selector" id="prop-selector">
             <div class="prop-list" id="prop-list"></div>
+            <div class="custom-prop-dialog" id="custom-prop-dialog">
+                <form class="custom-prop-settings-wrapper" id="custom-prop-form" name="custom-prop-form">
+                    <input type="text" placeholder="Name" id="custom-prop-name" required>
+                    <div><input type="number" placeholder="Width" id="custom-prop-width" required><span>m</span></div>
+                    <div><input type="number" placeholder="Length" id="custom-prop-length" required><span>m</span></div>
+                    <div class="custom-prop-background">
+                        <div>Choose a color or upload a file</div>
+                        <div>
+                            <input type="file" accept=".png, .jpeg, .jpg" id="custom-prop-upload" name="custom-prop-file">
+                            <input type="hidden" id="custom-prop-img-url">
+                            <input type="color" id="custom-prop-color">
+                        </div>
+                        <input type="submit" value="Add">
+                    </div>
+                </form>
+            </div>
         </div>
         <div class="content">
             <div class="upload-area" id="upload-area">
@@ -16,23 +32,36 @@
                     </div>
                 </div>
                 <div>
-                    <button id="clear-button">Clear</button>
+                    <button id="clear-button">Clear props</button>
                     <input type="file" accept=".png, .jpeg, .jpg" id="layout-upload" name="file">
                     <button id="scale-button" style="display: none">Scale</button>
                     <button id="prop-button">Props</button>
+                    <button id="measure-button">New measurement</button>
+                    <span id="action"></span>
                 </div>
             </div>
             <div class="instructions">
                 Use A/D while moving a prop to rotate it slightly. Use W/S to rotate it 90 degrees
             </div>
-            <div class="layout-container">
-                <div class="layout" id="layout">
+            <div>
+                <div class="layout-container" id="layout-container">
+                    <div class="layout" id="layout"></div>
+                    <svg class="pathCanvas" id="canvas"></svg>
                 </div>
             </div>
         </div>
         <div style="display: none">
-            <div draggable="true" title="Single Bed" class="prop" id="single-bed"></div>
-            <div draggable="true" title="Double Bed" class="prop" id="double-bed"></div>
+            <div class="props">
+                <div draggable="true" title="Single Bed" class="prop" id="single-bed"></div>
+                <div draggable="true" title="Double Bed" class="prop" id="double-bed"></div>
+                <div draggable="true" title="Bookshelf 80x28" class="prop" id="billy-80"></div>
+                <div draggable="true" title="Bookshelf 40x28" class="prop" id="billy-40"></div>
+                <div draggable="true" title="Sofa" class="prop" id="sofa"></div>
+                <div draggable="true" title="Dinner table" class="prop" id="dinner-table"></div>
+            </div>
+            <div draggable="true" class="measuring-point" id="measuring-point"></div>
+            <div class="measurement-length" id="measurement-length"></div>
+            <span id="add-new-prop" class="add-new-prop">Add custom prop</span>
         </div>
         <footer><a href="https://github.com/marc7s">marc7s</a></footer>
     </body>

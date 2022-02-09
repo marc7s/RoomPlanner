@@ -46,12 +46,15 @@ footer a {
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
-    position: relative;
 }
 
 .layout-container {
     max-height: 80%;
     padding: 10px;
+    position: relative;
+    display: block;
+    width: 95%;
+    margin: auto;
 }
 
 .file-name-wrapper {
@@ -81,12 +84,24 @@ footer a {
     background-image: url('resources/bed.png');
 }
 
+#billy-40, #billy-80 {
+    background-image: url('resources/bookshelf.png');
+}
+
+#sofa {
+    background-image: url('resources/sofa.png');
+}
+
+#dinner-table {
+    background-image: url('resources/dinner-table.jpg');
+}
+
 .prop-selector {
     height: 100%;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.8);
-    position: absolute;
-    z-index: 9999;
+    position: relative;
+    z-index: 998;
     display: none;
 }
 
@@ -112,11 +127,97 @@ footer a {
     background-color: lightblue;
 }
 
-.measuring {
+.scaling, .measuring {
     cursor: crosshair;
 }
 
 .instructions {
     text-align: center;
     margin-top: 5px;
+}
+
+#action:not(.active) {
+    display: none;
+}
+
+.pathCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+}
+
+.pathLine {
+    stroke: rgb(255,0,0);
+    stroke-width: 2;
+}
+
+.measuring-point, .measurement-length {
+    z-index: 15;
+}
+
+.measuring-point {
+    background-color: aqua;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    position: absolute;
+    cursor: grab;
+}
+
+.measuring-point.last-point {
+    background-color: green;
+}
+
+.measurement-length {
+    padding: 5px;
+    background-color: white;
+    border: 1px solid black;
+    position: absolute;
+    color: black;
+}
+
+span.add-new-prop {
+    background-color: rgba(1, 143, 1, 0.492);
+}
+
+.custom-prop-dialog:not(.active) {
+    display: none;
+}
+
+.custom-prop-dialog.active {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+}
+
+.custom-prop-settings-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.custom-prop-settings-wrapper input {
+    font-size: larger;
+    margin: 10px 10px;
+}
+
+.custom-prop-settings-wrapper div {
+    color: white;
+}
+
+.custom-prop-background {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
