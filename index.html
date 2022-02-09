@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <title>RoomPlanner</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="prop-selector" id="prop-selector">
+            <div class="prop-list" id="prop-list"></div>
+        </div>
+        <div class="content">
+            <div class="upload-area" id="upload-area">
+                <div>
+                    <div class="file-name-wrapper">
+                        <div>Opened image:</div>
+                        <div id="file-name"></div>
+                    </div>
+                </div>
+                <div>
+                    <button id="clear-button">Clear</button>
+                    <input type="file" accept=".png, .jpeg, .jpg" id="layout-upload" name="file">
+                    <button id="scale-button" style="display: none">Scale</button>
+                    <button id="prop-button">Props</button>
+                </div>
+            </div>
+            <div class="instructions">
+                Use A/D while moving a prop to rotate it slightly. Use W/S to rotate it 90 degrees
+            </div>
+            <div class="layout-container">
+                <div class="layout" id="layout">
+                </div>
+            </div>
+        </div>
+        <div style="display: none">
+            <div draggable="true" title="Single Bed" class="prop" id="single-bed"></div>
+            <div draggable="true" title="Double Bed" class="prop" id="double-bed"></div>
+        </div>
+        <footer><a href="https://github.com/marc7s">marc7s</a></footer>
+    </body>
+    <script src="script.js"></script>
+</html>

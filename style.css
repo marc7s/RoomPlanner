@@ -1,0 +1,122 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+input[type='file'] {
+    color: rgba(0, 0, 0, 0);
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    min-height: 4vh;
+}
+
+.content {
+    margin-bottom: -4vh;
+    height: 100%;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+.upload-area {
+    height: 5vh;
+    width: 100%;
+    background-color: green;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#layout {
+    color: white;
+    padding: 20px;
+}
+
+.layout {
+    border: 1px solid black;
+    height: 80%;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.layout-container {
+    max-height: 80%;
+    padding: 10px;
+}
+
+.file-name-wrapper {
+    margin: 5px 0;
+}
+
+.file-name-wrapper div {
+    display: inline-block;
+}
+
+#file-name {
+    font-weight: bold;
+}
+
+.prop {
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border: 1px solid black;
+    width: 100px;
+    height: 200px;
+    position: absolute;
+    cursor: grab;
+}
+
+#single-bed, #double-bed {
+    background-image: url('resources/bed.png');
+}
+
+.prop-selector {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    position: absolute;
+    z-index: 9999;
+    display: none;
+}
+
+.prop-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.prop-list span {
+    font-size: large;
+    background-color: white;
+    color: black;
+    margin: 5px 0;
+    border: 1px solid black;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.prop-list span:hover {
+    background-color: lightblue;
+}
+
+.measuring {
+    cursor: crosshair;
+}
+
+.instructions {
+    text-align: center;
+    margin-top: 5px;
+}
