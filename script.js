@@ -17,7 +17,7 @@ const measuringPoint = document.getElementById("measuring-point");
 const measurementLength = document.getElementById("measurement-length");
 const canvas = document.getElementById("canvas");
 
-var degToRotate = 0;
+var activeProp = null;
 
 // Props
 const singleBed = document.getElementById("single-bed");
@@ -306,12 +306,11 @@ function addMeasuringPoint(pos) {
     calculatePath();
 }
 
-function rotate(el) {
+function rotate(el, degToRotate) {
     let currRotation = el.rotation || 0;
     let deg = currRotation + degToRotate;
     el.style.transform = `rotate(${deg}deg)`;
     el.rotation = deg;
-    degToRotate = 0;
 }
 
 document.body.addEventListener('keydown', (e) => {
@@ -323,7 +322,8 @@ document.body.addEventListener('keydown', (e) => {
         case "KeyS": deg = -90; break;
     }
     if(deg != null) {
-        degToRotate = deg;
+        if(activeProp)
+            rotate(activeProp, deg);
     }
 });
 
@@ -428,6 +428,7 @@ function dragElement(elmnt) {
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
+        activeProp = elmnt.classList.contains("prop") ? elmnt : null;
         // get the mouse cursor position at startup:
         pos3 = e.clientX;
         pos4 = e.clientY;
@@ -455,16 +456,13 @@ function dragElement(elmnt) {
         if(elmnt.classList.contains("measuring-point")){
             calculatePath();
         }
-
-        if(elmnt.classList.contains("prop") && degToRotate){
-            rotate(elmnt);
-        }
     }
 
     function closeDragElement() {
         // stop moving when mouse button is released:
         document.onmouseup = null;
         document.onmousemove = null;
+        activeProp = null;
     }
 }
 
