@@ -68,6 +68,10 @@ const availableProps = [
 var props = [];
 var path = [];
 
+var propFiles = [];
+var layoutFile = null;
+var layoutImageUrl = null;
+
 propSelector.addEventListener('click', (evt) => {
     if(!evt.target.classList.contains("add-new-prop") && !customPropDialogShowing)
         closePropSelector();
@@ -161,10 +165,11 @@ layout.addEventListener('click', (evt) => {
         return;
 
     if(measuring) {
-        let point = {
-            element: measuringPoint
-        }
-        addMeasuringPoint(point, mousePos);
+        const pos = {
+            x: mousePos.x - layoutContainer.offsetLeft,
+            y: mousePos.y - layoutContainer.offsetTop
+        };
+        addMeasuringPoint(pos);
     }
     else if(scaling) {
         if(scaleStart == null){
@@ -194,6 +199,7 @@ layoutUpload.addEventListener('change', async (evt) => {
 customPropUpload.addEventListener('change', async (evt) => {
     const files = evt.target.files;
     const propImg = files[0];
+    propFiles.push(propImg);
     uploadFile(propImg).then(imgUrl => {
         document.getElementById("custom-prop-img-url").value = imgUrl;
     });
@@ -228,12 +234,14 @@ dropArea.addEventListener('drop', async (evt) => {
 });
 
 function uploadLayout(file) {
+    layoutFile = file;
     uploadFile(file).then(imgUrl => {
+        layoutImageUrl = imgUrl;
         layout.style.backgroundImage = `url('${imgUrl}')`;
         fileName.innerHTML = file.name ? file.name : "UNKNOWN";
         uploaded = true;
         scaleButton.style.display = "inline-block";
-    });   
+    });
 }
 
 function uploadFile(file) {
@@ -273,12 +281,15 @@ function addProp(prop) {
     rescale();
 }
 
-function addMeasuringPoint(point, mousePos) {
+function addMeasuringPoint(pos) {
+    const point = {
+        element: measuringPoint
+    };
     let clonedPoint = Object.assign({}, point);
     let el = point.element.cloneNode(true);
     layout.appendChild(el);
-    let x = mousePos.x - layoutContainer.offsetLeft - (el.offsetWidth / 2);
-    let y = mousePos.y - layoutContainer.offsetTop - (el.offsetHeight / 2);
+    let x = pos.x - (el.offsetWidth / 2);
+    let y = pos.y - (el.offsetHeight / 2);
     el.midx = x + el.offsetWidth / 2;
     el.midy = y + el.offsetHeight / 2;
     el.x = x;

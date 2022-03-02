@@ -39,6 +39,15 @@
                     <button id="measure-button">New measurement</button>
                     <span id="action"></span>
                 </div>
+                <div class="load-download-buttons">
+                    <div>
+                        <button id="load-model-file-input-button">Load model</button>
+                        <input type="file" id="load-model-file-input" accept=".rp" hidden>
+                    </div>
+                    <div>
+                        <button id="download-model-button">Download model</button>
+                    </div>
+                </div> 
             </div>
             <div class="instructions">
                 Use A/D while moving a prop to rotate it slightly. Use W/S to rotate it 90 degrees
@@ -66,4 +75,8 @@
         <footer><a href="https://github.com/marc7s">marc7s</a></footer>
     </body>
     <script src="script.js"></script>
+    <script src="zip-no-worker.min.js"></script>
+    <script src="parse.js"></script>
+    <script src="load.js"></script>
+    <script src="save.js"></script>
 </html>
