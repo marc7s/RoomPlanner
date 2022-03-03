@@ -30,7 +30,7 @@ const dinnerTable = document.getElementById("dinner-table");
 
 const defaultProps = [
     {
-        name: 'Single Bed (120 cm)',
+        name: 'Single Bed - 120 cm',
         element: singleBed,
         widthM: 1.2,
         lengthM: 2,
@@ -38,7 +38,7 @@ const defaultProps = [
         default: true
     },
     {
-        name: 'Double Bed (160 cm)',
+        name: 'Double Bed - 160 cm',
         element: doubleBed,
         widthM: 1.6,
         lengthM: 2,
@@ -46,7 +46,7 @@ const defaultProps = [
         default: true
     },
     {
-        name: 'Bookshelf (80x28 cm)',
+        name: 'Bookshelf',
         element: bookshelf80,
         widthM: 0.8,
         lengthM: 0.28,
@@ -54,7 +54,7 @@ const defaultProps = [
         default: true
     },
     {
-        name: 'Bookshelf (40x28 cm)',
+        name: 'Bookshelf',
         element: bookshelf40,
         widthM: 0.4,
         lengthM: 0.28,
@@ -134,6 +134,7 @@ function createCustomProp(name, widthM, lengthM, color, imgName, imgUrl) {
     if(imgUrl) {
         const url = `url('${imgUrl}')`;
         el.style.backgroundImage = url;
+        el.style.backgroundColor = "white";
         customProp.imageName = imgName;
         customProp.imageUrl = url;
     }
@@ -143,7 +144,7 @@ function createCustomProp(name, widthM, lengthM, color, imgName, imgUrl) {
     }
     
     el.draggable = true;
-    el.title = name;
+    el.title = getPropTitle(customProp);
     el.classList.add("prop");
     customProps.push(customProp);
     return customProp;
@@ -154,7 +155,7 @@ propButton.addEventListener('click', (evt) => {
     const allAvailableProps = [...defaultProps, ...customProps];
     allAvailableProps.forEach(prop => {
         let el = document.createElement('span');
-        el.innerHTML = prop.name;
+        el.innerHTML = getPropTitle(prop);
         el.addEventListener('click', (evt) => { addProp(prop) });
 
         propList.appendChild(el);
@@ -532,6 +533,10 @@ function closeCustomPropDialog() {
 
 function closePropSelector() {
     propSelector.style.display = 'none';
+}
+
+function getPropTitle(prop) {
+    return `${prop.name} (${prop.widthM}x${prop.lengthM} m)`;
 }
 
 function setLayoutDimensions(url) {
