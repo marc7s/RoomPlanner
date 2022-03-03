@@ -338,7 +338,7 @@ function addMeasuringPoint(pos) {
     let clonedPoint = Object.assign({}, point);
     let el = point.element.cloneNode(true);
     layout.appendChild(el);
-    move(el, pos.x, pos.y);
+    move(el, pos.x - el.offsetWidth / 2, pos.y - el.offsetHeight / 2);
     clonedPoint.element = el;
     dragElement(el);
     path.push(clonedPoint);
