@@ -16,6 +16,7 @@ const action = document.getElementById("action");
 const measuringPoint = document.getElementById("measuring-point");
 const measurementLength = document.getElementById("measurement-length");
 const canvas = document.getElementById("canvas");
+const downloadButton = document.getElementById("download-model-button");
 
 var activeProp = null;
 
@@ -27,45 +28,61 @@ const bookshelf40 = document.getElementById("billy-40");
 const sofa = document.getElementById("sofa");
 const dinnerTable = document.getElementById("dinner-table");
 
-const availableProps = [
+const defaultProps = [
     {
         name: 'Single Bed (120 cm)',
         element: singleBed,
         widthM: 1.2,
-        lengthM: 2
+        lengthM: 2,
+        id: "single-bed-120",
+        default: true
     },
     {
         name: 'Double Bed (160 cm)',
         element: doubleBed,
         widthM: 1.6,
-        lengthM: 2
+        lengthM: 2,
+        id: "double-bed-160",
+        default: true
     },
     {
         name: 'Bookshelf (80x28 cm)',
         element: bookshelf80,
         widthM: 0.8,
-        lengthM: 0.28
+        lengthM: 0.28,
+        id: "bookshelf-80x28",
+        default: true
     },
     {
         name: 'Bookshelf (40x28 cm)',
         element: bookshelf40,
         widthM: 0.4,
-        lengthM: 0.28
+        lengthM: 0.28,
+        id: "bookshelf-40x28",
+        default: true
     },
     {
         name: 'Sofa',
         element: sofa,
         widthM: 2.18,
-        lengthM: 0.88
+        lengthM: 0.88,
+        id: "sofa-2-seat",
+        default: true
     },
     {
         name: 'Dinner Table',
         element: dinnerTable,
         widthM: 1.4,
-        lengthM: 1
+        lengthM: 1,
+        id: "dinner-table-140x100",
+        default: true
     }
 ];
-var props = [];
+var customProps = [];
+var customPropMaxID = 0;
+
+var placedDefaultProps = [];
+var placedCustomProps = [];
 var path = [];
 
 var propFiles = [];
@@ -78,42 +95,64 @@ propSelector.addEventListener('click', (evt) => {
 });
 
 clearButton.addEventListener('click', (evt) => {
-    if(confirm('Are you sure you want to remove all props?')){
-        props.forEach(prop => {
+    if(confirm('Are you sure you want to remove all props?')) {
+        allProps().forEach(prop => {
             prop.element.remove();
         });
-        props = [];
+        placedDefaultProps = [];
+        placedCustomProps = [];
     }
 });
 
 customPropForm.addEventListener('submit', evt => {
     evt.preventDefault();
-    let el = document.createElement('div');
     const name = document.getElementById("custom-prop-name").value;
     const imgUrl = document.getElementById("custom-prop-img-url").value;
-    const color = document.getElementById("custom-prop-color").value;
-    if(imgUrl)
-        el.style.backgroundImage = `url('${imgUrl}')`;
-    else
-        el.style.backgroundColor = color;
+    const imgName = document.getElementById("custom-prop-img-name").value;
+    const color = imgUrl == "" ? document.getElementById("custom-prop-color").value : null;
+    const widthM = document.getElementById("custom-prop-width").value;
+    const lengthM = document.getElementById("custom-prop-length").value;
     
-    el.draggable = true;
-    el.title = name;
-    el.classList.add("prop");
-    availableProps.push({
-        name: name,
-        element: el,
-        widthM: document.getElementById("custom-prop-width").value,
-        lengthM: document.getElementById("custom-prop-length").value
-    });
+    createCustomProp(name, widthM, lengthM, color, imgName, imgUrl);
 
     closeCustomPropDialog();
     closePropSelector();
 });
 
+function createCustomProp(name, widthM, lengthM, color, imgName, imgUrl) {
+    let el = document.createElement('div');
+    const dateStamp = Date.now(); 
+    let customProp = {
+        name: name,
+        element: el,
+        widthM: widthM,
+        lengthM: lengthM,
+        id: `${customPropMaxID}-${dateStamp}`
+    }
+    customPropMaxID++;
+
+    if(imgUrl) {
+        const url = `url('${imgUrl}')`;
+        el.style.backgroundImage = url;
+        customProp.imageName = imgName;
+        customProp.imageUrl = url;
+    }
+    else if(color) {
+        el.style.backgroundColor = color;
+        customProp.color = color;
+    }
+    
+    el.draggable = true;
+    el.title = name;
+    el.classList.add("prop");
+    customProps.push(customProp);
+    return customProp;
+}
+
 propButton.addEventListener('click', (evt) => {
     propList.innerHTML = '';
-    availableProps.forEach(prop => {
+    const allAvailableProps = [...defaultProps, ...customProps];
+    allAvailableProps.forEach(prop => {
         let el = document.createElement('span');
         el.innerHTML = prop.name;
         el.addEventListener('click', (evt) => { addProp(prop) });
@@ -202,6 +241,7 @@ customPropUpload.addEventListener('change', async (evt) => {
     propFiles.push(propImg);
     uploadFile(propImg).then(imgUrl => {
         document.getElementById("custom-prop-img-url").value = imgUrl;
+        document.getElementById("custom-prop-img-name").value = propImg.name;
     });
 });
 
@@ -237,6 +277,7 @@ function uploadLayout(file) {
     layoutFile = file;
     uploadFile(file).then(imgUrl => {
         layoutImageUrl = imgUrl;
+        setLayoutDimensions(imgUrl);
         layout.style.backgroundImage = `url('${imgUrl}')`;
         fileName.innerHTML = file.name ? file.name : "UNKNOWN";
         uploaded = true;
@@ -259,10 +300,14 @@ function uploadFile(file) {
     });
 }
 
+function allProps() {
+    return [...placedDefaultProps, ...placedCustomProps];
+}
+
 function rescale() {
     if(scale.distPx != null && scale.distM != null) {
         console.log('Rescaling...');
-        props.forEach((prop) => {
+        allProps().forEach(prop => {
             prop.element.style.width = `${scaleMToPx(prop.widthM)}px`;
             prop.element.style.height = `${scaleMToPx(prop.lengthM)}px`;
         });
@@ -276,9 +321,13 @@ function addProp(prop) {
     clonedProp.element = el;
     dragElement(el);
     el.rotation = 0;
-    props.push(clonedProp);
+    if(prop.default)
+        placedDefaultProps.push(clonedProp);
+    else
+        placedCustomProps.push(clonedProp);
     layout.appendChild(el);
     rescale();
+    return el;
 }
 
 function addMeasuringPoint(pos) {
@@ -288,14 +337,7 @@ function addMeasuringPoint(pos) {
     let clonedPoint = Object.assign({}, point);
     let el = point.element.cloneNode(true);
     layout.appendChild(el);
-    let x = pos.x - (el.offsetWidth / 2);
-    let y = pos.y - (el.offsetHeight / 2);
-    el.midx = x + el.offsetWidth / 2;
-    el.midy = y + el.offsetHeight / 2;
-    el.x = x;
-    el.y = y;
-    el.style.left = `${el.x}px`;
-    el.style.top = `${el.y}px`;
+    move(el, pos.x, pos.y);
     clonedPoint.element = el;
     dragElement(el);
     path.push(clonedPoint);
@@ -386,6 +428,7 @@ function clearPathLines() {
 
 function startScaling() {
     scaling = true;
+    downloadButton.disabled = true;
     action.innerHTML = "Scaling";
     action.classList.add("active");
     layout.classList.add("scaling");
@@ -393,6 +436,7 @@ function startScaling() {
 
 function stopScaling() {
     scaling = false;
+    downloadButton.disabled = false;
     action.innerHTML = "";
     action.classList.remove("active");
     layout.classList.remove("scaling");
@@ -446,12 +490,7 @@ function dragElement(elmnt) {
         pos3 = e.clientX;
         pos4 = e.clientY;
         // set the element's new position:
-        elmnt.x = elmnt.offsetLeft - pos1;
-        elmnt.y = elmnt.offsetTop - pos2;
-        elmnt.midx = elmnt.x + elmnt.offsetWidth / 2;
-        elmnt.midy = elmnt.y + elmnt.offsetHeight / 2;
-        elmnt.style.top = elmnt.y + "px";
-        elmnt.style.left = elmnt.x + "px";
+        move(elmnt, elmnt.offsetLeft - pos1, elmnt.offsetTop - pos2);
 
         if(elmnt.classList.contains("measuring-point")){
             calculatePath();
@@ -464,6 +503,15 @@ function dragElement(elmnt) {
         document.onmousemove = null;
         activeProp = null;
     }
+}
+
+function move(el, x, y) {
+    el.x = x;
+    el.y = y;
+    el.midx = el.x + el.offsetWidth / 2;
+    el.midy = el.y + el.offsetHeight / 2;
+    el.style.top = el.y + "px";
+    el.style.left = el.x + "px";
 }
 
 function openCustomPropDialog() {
@@ -479,8 +527,18 @@ function closeCustomPropDialog() {
     document.getElementById("custom-prop-length").value = null;
     document.getElementById("custom-prop-upload").value = null;
     document.getElementById("custom-prop-img-url").value = null;
+    document.getElementById("custom-prop-img-name").value = null;
 }
 
 function closePropSelector() {
     propSelector.style.display = 'none';
+}
+
+function setLayoutDimensions(url) {
+    const image = new Image();
+    image.src = url;
+    // Height is automatically maxed
+    layoutHeight = layout.clientHeight;
+    // Get width from height divided by the height to width factor of the original image
+    layoutWidth = layoutHeight / (image.height / image.width);
 }

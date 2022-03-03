@@ -48,7 +48,7 @@
 		}
 
 		async function parseModel() {
-			const parsedModel = await parseModelJson(entries);
+			await parseModelJson(entries);
 		}
 	})();
 

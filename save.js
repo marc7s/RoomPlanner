@@ -24,7 +24,6 @@
 	})();
 
 	(() => {
-		const downloadButton = document.getElementById("download-model-button");
 		downloadButton.addEventListener("click", onDownloadButtonClick, false);
 		configure();
 
@@ -35,13 +34,8 @@
 		async function addFiles() {
 			downloadButton.disabled = true;
 			let savedModel = {
-				props: [
-					{
-						"name": "Bed",
-						"widthM": 0.9,
-						"lengthM": 2
-					}
-				]
+				customProps: [],
+				placedDefaultProps: []
 			};
 			
 			let files = [];
@@ -66,15 +60,65 @@
 					savedModel.path = [];
 					setLayoutDimensions(layoutImageUrl);
 					path.forEach(point => {
-						const x = point.element.x - (layoutContainer.clientWidth - layoutWidth) / 2 + point.element.offsetWidth / 2;
-						const y = point.element.y + point.element.offsetHeight / 2;
 						savedModel.path.push({
-							xp: Math.abs(x / layoutWidth),
-							yp: Math.abs(y / layoutHeight)
+							xp: getXP(point.element),
+							yp: getYP(point.element)
 						});
 					});
 				}
 			}
+
+			// Check for custom props
+			if(customProps.length > 0) {
+				console.log("Custom props found, saving to model...");
+				customProps.forEach(prop => {
+					let savedProp = {
+						name: prop.name,
+						id: prop.id,
+						widthM: prop.widthM,
+						lengthM: prop.lengthM,
+						placed: []
+					};
+					if(prop.imageName)
+						savedProp.imageName = prop.imageName;
+					else if(prop.color)
+						savedProp.color = prop.color;
+	
+					placedCustomProps.forEach(placedProp => {
+						if(placedProp.id == prop.id){
+							const placedCustomProp = {
+								"xp": getXP(placedProp.element),
+								"yp": getYP(placedProp.element),
+								"rotation": placedProp.element.rotation
+							};
+							savedProp.placed.push(placedCustomProp);
+						}
+					});
+					savedModel.customProps.push(savedProp);
+				});
+
+				// Add all custom prop image files
+				propFiles.forEach(propFile => {
+					files.push(propFile);
+				});
+			}
+			
+
+			// Check for default props
+			if(placedDefaultProps.length > 0) {
+				console.log("Placed default props found, saving to model...");
+				placedDefaultProps.forEach(prop => {
+					let savedProp = {
+						id: prop.id,
+						xp: getXP(prop.element),
+						yp: getYP(prop.element),
+						rotation: prop.element.rotation
+					};
+	
+					savedModel.placedDefaultProps.push(savedProp);
+				});
+			}
+			
 			
 			
 			const model = new File(
@@ -143,6 +187,16 @@
 			}
 			downloadButton.disabled = true;
 			event.preventDefault();
+		}
+
+		function getXP(el) {
+			const x = el.x - (layoutContainer.clientWidth - layoutWidth) / 2;
+			return Math.abs(x / layoutWidth);
+		}
+
+		function getYP(el) {
+			const y = el.y;
+			return Math.abs(y / layoutHeight);
 		}
 	})();
 })();
