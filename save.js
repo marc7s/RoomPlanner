@@ -34,6 +34,7 @@
 		async function addFiles() {
 			downloadButton.disabled = true;
 			let savedModel = {
+				version: 1.0,
 				customProps: [],
 				placedDefaultProps: []
 			};
