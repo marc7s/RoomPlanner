@@ -3,6 +3,20 @@ body {
     padding: 0;
 }
 
+button {
+    white-space: nowrap;
+    margin: 2px;
+    padding: 3px;
+    border-radius: 0;
+    border: none;
+}
+
+.layout-info {
+    position: absolute;
+    top: 2px;
+    right: 5px;
+}
+
 input[type='file'] {
     color: rgba(0, 0, 0, 0);
 }
@@ -35,12 +49,29 @@ footer a {
     flex-direction: column;
 }
 
-.load-download-buttons {
+.button-groups {
     display: flex;
 }
 
-.load-download-buttons div {
-    margin: 5px;
+.button-groups div {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.button-groups .settings {
+    margin-right: 15px;
+}
+
+.button-groups .planning {
+    margin-left: 15px;
+}
+
+.load-download-buttons {
+    margin-left: 5px;
+    display: flex;
+    flex-direction: column;
 }
 
 #layout {
@@ -68,7 +99,7 @@ footer a {
     margin: 5px 0;
 }
 
-.file-name-wrapper div {
+.layout-info div div {
     display: inline-block;
 }
 
@@ -107,7 +138,7 @@ footer a {
     height: 100%;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.8);
-    position: relative;
+    position: absolute;
     z-index: 998;
     display: none;
 }
@@ -132,6 +163,19 @@ footer a {
 
 .prop-list span:hover {
     background-color: lightblue;
+}
+
+.prop-list .custom-prop {
+    background-color: coral;
+}
+
+.prop-list.remove-mode .default-prop {
+    background-color: rgba(170, 168, 168, 0.5);
+    cursor: not-allowed;
+}
+
+.prop-list.remove-mode .custom-prop {
+    background-color: rgb(200, 50, 50);
 }
 
 .scaling, .measuring {
@@ -186,8 +230,13 @@ footer a {
     color: black;
 }
 
-span.add-new-prop {
-    background-color: rgba(1, 143, 1, 0.492);
+span.add-custom-prop {
+    margin-top: 25px;
+    background-color: rgb(24, 107, 24);
+}
+
+span.remove-custom-prop {
+    background-color: rgb(120, 20, 20);
 }
 
 .custom-prop-dialog:not(.active) {

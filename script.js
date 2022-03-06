@@ -1,4 +1,6 @@
-const layoutUpload = document.getElementById("layout-upload");
+const uploadLayoutInput = document.getElementById("upload-layout");
+const uploadLayoutButton = document.getElementById("upload-layout-button");
+const scaleInfo = document.getElementById("scale-info");
 const customPropUpload = document.getElementById("custom-prop-upload");
 const layout = document.getElementById("layout");
 const layoutContainer = document.getElementById("layout-container");
@@ -9,7 +11,8 @@ const measureButton = document.getElementById("measure-button");
 const clearButton = document.getElementById("clear-button");
 const propSelector = document.getElementById("prop-selector");
 const propList = document.getElementById("prop-list");
-const addNewProp = document.getElementById("add-new-prop");
+const addCustomProp = document.getElementById("add-custom-prop");
+const removeCustomProp = document.getElementById("remove-custom-prop");
 const customPropDialog = document.getElementById("custom-prop-dialog");
 const customPropForm = document.getElementById("custom-prop-form");
 const action = document.getElementById("action");
@@ -18,7 +21,7 @@ const measurementLength = document.getElementById("measurement-length");
 const canvas = document.getElementById("canvas");
 const downloadButton = document.getElementById("download-model-button");
 
-var activeProp = null;
+var activePropElement = null;
 
 // Props
 const singleBed = document.getElementById("single-bed");
@@ -81,6 +84,8 @@ const defaultProps = [
 var customProps = [];
 var customPropMaxID = 0;
 
+var propDeleteMode = false;
+
 var placedDefaultProps = [];
 var placedCustomProps = [];
 var path = [];
@@ -90,14 +95,27 @@ var layoutFile = null;
 var layoutImageUrl = null;
 
 propSelector.addEventListener('click', (evt) => {
-    if(!evt.target.classList.contains("add-new-prop") && !customPropDialogShowing)
+    if(
+        !(
+            evt.target.classList.contains("add-custom-prop")
+            || evt.target.classList.contains("remove-custom-prop")
+        )
+        && !customPropDialogShowing
+        && !propDeleteMode
+    ){
         closePropSelector();
+    }
+        
+});
+
+uploadLayoutButton.addEventListener('click', (evt) => {
+    uploadLayoutInput.click();
 });
 
 clearButton.addEventListener('click', (evt) => {
     if(confirm('Are you sure you want to remove all props?')) {
         allProps().forEach(prop => {
-            prop.element.remove();
+            clearPropElement(prop.element);
         });
         placedDefaultProps = [];
         placedCustomProps = [];
@@ -151,18 +169,28 @@ function createCustomProp(name, widthM, lengthM, color, imgName, imgUrl) {
 }
 
 propButton.addEventListener('click', (evt) => {
+    setPropDeleteMode(false);
     propList.innerHTML = '';
     const allAvailableProps = [...defaultProps, ...customProps];
     allAvailableProps.forEach(prop => {
         let el = document.createElement('span');
         el.innerHTML = getPropTitle(prop);
-        el.addEventListener('click', (evt) => { addProp(prop) });
+        if(defaultProps.includes(prop)) {
+            el.classList.add("default-prop");
+        } else {
+            el.classList.add("custom-prop");
+            el.id = `plcp-${prop.id}`;
+        }
+        el.addEventListener('click', (evt) => { addOrRemoveProp(prop) });
 
         propList.appendChild(el);
     });
-    const addNewPropClone = addNewProp.cloneNode(true);
-    addNewPropClone.addEventListener('click', evt => { openCustomPropDialog() });
-    propList.appendChild(addNewPropClone);
+    const addCustomPropClone = addCustomProp.cloneNode(true);
+    const removeCustomPropClone = removeCustomProp.cloneNode(true);
+    addCustomPropClone.addEventListener('click', evt => { openCustomPropDialog() });
+    removeCustomPropClone.addEventListener('click', evt => { setPropDeleteMode(!propDeleteMode) });
+    propList.appendChild(addCustomPropClone);
+    propList.appendChild(removeCustomPropClone);
     propSelector.style.display = 'block';
 });
 
@@ -230,7 +258,7 @@ layout.addEventListener('click', (evt) => {
     }
 });
 
-layoutUpload.addEventListener('change', async (evt) => {
+uploadLayoutInput.addEventListener('change', async (evt) => {
     const files = evt.target.files;
     const layoutImg = files[0];
     uploadLayout(layoutImg);
@@ -308,11 +336,49 @@ function allProps() {
 function rescale() {
     if(scale.distPx != null && scale.distM != null) {
         console.log('Rescaling...');
+        updateScaleInfo();
         allProps().forEach(prop => {
             prop.element.style.width = `${scaleMToPx(prop.widthM)}px`;
             prop.element.style.height = `${scaleMToPx(prop.lengthM)}px`;
         });
         calculatePath();
+    }
+}
+
+function updateScaleInfo() {
+    const scl = scalePxToM(1 / scale.distPx);
+    let pfScl = scl;
+    const units = ["m", "dm", "cm", "mm"];
+    let i = 0;
+    while(pfScl < 0.1 && i < units.length - 1) {
+        pfScl *= 10;
+        i++;
+    }
+    scaleInfo.innerHTML = `1:${Math.round(pfScl * 10) / 10} ${units[i]}`;
+}
+
+function addOrRemoveProp(prop) {
+    if(propDeleteMode)
+        removeProp(prop);
+    else
+        addProp(prop);
+}
+
+function removeProp(prop) {
+    // Only allow removal of custom props
+    if(customProps.includes(prop)) {
+        // Remove all placed instances
+        const placed = placedCustomProps.filter(p => p.id == prop.id);
+        placed.map(p => { clearPropElement(p.element) });
+        placedCustomProps = placedCustomProps.filter(pcp => { return !placed.find(p => { p.id == pcp.id}) });
+
+        // Remove the prop
+        customProps = customProps.filter(p => p.id != prop.id);
+
+        // Remove the option from the prop list, if found
+        const propListEntry = document.getElementById(`plcp-${prop.id}`);
+        if(propListEntry)
+            propListEntry.remove();
     }
 }
 
@@ -358,16 +424,25 @@ function rotate(el, degToRotate) {
 
 document.body.addEventListener('keydown', (e) => {
     let deg = null;
+    let del = false;
     switch(e.code){
         case "KeyA": deg = -10; break;
         case "KeyD": deg = 10; break;
         case "KeyW": deg = 90; break;
         case "KeyS": deg = -90; break;
+        case "Delete":
+        case "Escape": del = true; break;
     }
-    if(deg != null) {
-        if(activeProp)
-            rotate(activeProp, deg);
+    if(activePropElement) {
+        if(deg != null)
+            rotate(activePropElement, deg);
+        if(del) {
+            clearPropElement(activePropElement);
+            activePropElement = null;
+        }
+            
     }
+    
 });
 
 function clearPath() {
@@ -473,7 +548,7 @@ function dragElement(elmnt) {
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
-        activeProp = elmnt.classList.contains("prop") ? elmnt : null;
+        activePropElement = elmnt.classList.contains("prop") ? elmnt : null;
         // get the mouse cursor position at startup:
         pos3 = e.clientX;
         pos4 = e.clientY;
@@ -502,7 +577,7 @@ function dragElement(elmnt) {
         // stop moving when mouse button is released:
         document.onmouseup = null;
         document.onmousemove = null;
-        activeProp = null;
+        activePropElement = null;
     }
 }
 
@@ -529,6 +604,18 @@ function closeCustomPropDialog() {
     document.getElementById("custom-prop-upload").value = null;
     document.getElementById("custom-prop-img-url").value = null;
     document.getElementById("custom-prop-img-name").value = null;
+}
+
+function setPropDeleteMode(isActive) {
+    propDeleteMode = isActive;
+    if(propDeleteMode)
+        propList.classList.add("remove-mode");
+    else
+        propList.classList.remove("remove-mode");
+}
+
+function clearPropElement(el) {
+    el.remove();
 }
 
 function closePropSelector() {

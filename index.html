@@ -26,32 +26,37 @@
         </div>
         <div class="content">
             <div class="upload-area" id="upload-area">
-                <div>
+                <div class="layout-info">
                     <div class="file-name-wrapper">
                         <div>Opened image:</div>
                         <div id="file-name"></div>
                     </div>
-                </div>
-                <div>
-                    <button id="clear-button">Clear props</button>
-                    <input type="file" accept=".png, .jpeg, .jpg" id="layout-upload" name="file">
-                    <button id="scale-button" style="display: none">Scale</button>
-                    <button id="prop-button">Props</button>
-                    <button id="measure-button">New measurement</button>
-                    <span id="action"></span>
-                </div>
-                <div class="load-download-buttons">
-                    <div>
-                        <button id="load-model-file-input-button">Load model</button>
-                        <input type="file" id="load-model-file-input" accept=".rp" hidden>
+                    <div class="scale-wrapper">
+                        <div>Scale:</div>
+                        <div id="scale-info"></div>
                     </div>
-                    <div>
-                        <button id="download-model-button" disabled>Download model</button>
+                </div>
+                <div class="button-groups">
+                    <div class="settings">
+                        <input type="file" accept=".png, .jpeg, .jpg" id="upload-layout" name="file" hidden>
+                        <button id="upload-layout-button">Upload layout</button>
+                        <button id="scale-button" style="display: none">Scale</button>
+                        <div class="load-download-buttons">
+                            <button id="load-model-file-input-button">Load model</button>
+                            <input type="file" id="load-model-file-input" accept=".rp" hidden>
+                            <button id="download-model-button" disabled>Download model</button>
+                        </div>
                     </div>
-                </div> 
+                    <div class="planning">
+                        <button id="clear-button">Clear props</button>
+                        <button id="prop-button">Props</button>
+                        <button id="measure-button">New measurement</button>
+                        <span id="action"></span>
+                    </div>
+                </div>
             </div>
             <div class="instructions">
-                Use A/D while moving a prop to rotate it slightly. Use W/S to rotate it 90 degrees
+                <strong>While holding a prop:</strong> Use A/D to rotate it slightly or W/S to rotate it 90 degrees. Use Escape/Delete to remove it
             </div>
             <div>
                 <div class="layout-container" id="layout-container">
@@ -71,7 +76,8 @@
             </div>
             <div draggable="true" class="measuring-point" id="measuring-point"></div>
             <div class="measurement-length" id="measurement-length"></div>
-            <span id="add-new-prop" class="add-new-prop">Add custom prop</span>
+            <span id="add-custom-prop" class="add-custom-prop">Add custom prop</span>
+            <span id="remove-custom-prop" class="remove-custom-prop">Remove custom prop</span>
         </div>
         <footer><a href="https://github.com/marc7s">marc7s</a></footer>
     </body>
