@@ -133,16 +133,6 @@
 			files.push(...propFiles);
 			
 			await Promise.all(files.map(async file => {
-				const li = document.createElement("li");
-				const filenameContainer = document.createElement("span");
-				const filename = document.createElement("span");
-				filenameContainer.classList.add("filename-container");
-				li.appendChild(filenameContainer);
-				filename.classList.add("filename");
-				filename.textContent = file.name;
-				filenameContainer.appendChild(filename);
-				li.title = file.name;
-				li.classList.add("pending");
 				const controller = new AbortController();
 				const signal = controller.signal;
 				try {
@@ -151,19 +141,11 @@
 						password: "",
 						signal,
 						onprogress: (index, max) => {
-							li.classList.remove("pending");
-							li.classList.add("busy");
+
 						},
 					});
-					li.title += `\n  Last modification date: ${entry.lastModDate.toLocaleString()}\n  Compressed size: ${entry.compressedSize.toLocaleString()} bytes`;
 				} catch (error) {
-					if (error.message == zip.ERR_ABORT) {
-						li.remove();
-					} else {
-						throw error;
-					}
-				} finally {
-					li.classList.remove("busy");
+					console.error(error);
 				}
 			}));
 			downloadButton.disabled = false;

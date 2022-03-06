@@ -33,7 +33,7 @@ const dinnerTable = document.getElementById("dinner-table");
 
 const defaultProps = [
     {
-        name: 'Single Bed - 120 cm',
+        name: 'Single Bed',
         element: singleBed,
         widthM: 1.2,
         lengthM: 2,
@@ -41,7 +41,7 @@ const defaultProps = [
         default: true
     },
     {
-        name: 'Double Bed - 160 cm',
+        name: 'Double Bed',
         element: doubleBed,
         widthM: 1.6,
         lengthM: 2,
@@ -93,6 +93,13 @@ var path = [];
 var propFiles = [];
 var layoutFile = null;
 var layoutImageUrl = null;
+
+// Set default prop titles
+document.addEventListener('DOMContentLoaded', () => {
+    defaultProps.forEach(prop => {
+        prop.element.title = getPropTitle(prop);
+    });
+});
 
 propSelector.addEventListener('click', (evt) => {
     if(
@@ -388,10 +395,12 @@ function addProp(prop) {
     clonedProp.element = el;
     dragElement(el);
     el.rotation = 0;
+    
     if(prop.default)
         placedDefaultProps.push(clonedProp);
     else
         placedCustomProps.push(clonedProp);
+
     layout.appendChild(el);
     rescale();
     return el;
@@ -440,7 +449,6 @@ document.body.addEventListener('keydown', (e) => {
             clearPropElement(activePropElement);
             activePropElement = null;
         }
-            
     }
     
 });
