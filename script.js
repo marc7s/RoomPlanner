@@ -248,7 +248,7 @@ layout.addEventListener('click', (evt) => {
             x: mousePos.x - layoutContainer.offsetLeft,
             y: mousePos.y - layoutContainer.offsetTop
         };
-        addMeasuringPoint(pos);
+        addMeasuringPoint(pos, true);
     }
     else if(scaling) {
         if(scaleStart == null){
@@ -410,14 +410,16 @@ function addProp(prop) {
     return el;
 }
 
-function addMeasuringPoint(pos) {
+function addMeasuringPoint(pos, center = false) {
     const point = {
         element: measuringPoint
     };
     let clonedPoint = Object.assign({}, point);
     let el = point.element.cloneNode(true);
     layout.appendChild(el);
-    move(el, pos.x - el.offsetWidth / 2, pos.y - el.offsetHeight / 2);
+    const x = center ? pos.x - el.offsetWidth / 2 : pos.x;
+    const y = center ? pos.y - el.offsetHeight / 2 : pos.y;
+    move(el, x, y);
     clonedPoint.element = el;
     dragElement(el);
     path.push(clonedPoint);
