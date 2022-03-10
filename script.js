@@ -23,6 +23,10 @@ const downloadButton = document.getElementById("download-model-button");
 
 var activePropElement = null;
 
+// Layout dimensions
+var LAYOUT_WIDTH = null;
+var LAYOUT_HEIGHT = null;
+
 // Props
 const singleBed = document.getElementById("single-bed");
 const doubleBed = document.getElementById("double-bed");
@@ -305,15 +309,15 @@ dropArea.addEventListener('drop', async (evt) => {
     }
 
     if(file != null){
-        uploadLayout(file);
+        await uploadLayout(file);
     }
 });
 
-function uploadLayout(file) {
+async function uploadLayout(file) {
     layoutFile = file;
-    uploadFile(file).then(imgUrl => {
+    await uploadFile(file).then(async imgUrl => {
         layoutImageUrl = imgUrl;
-        setLayoutDimensions(imgUrl);
+        await setLayoutDimensions(imgUrl);
         layout.style.backgroundImage = `url('${imgUrl}')`;
         fileName.innerHTML = file.name ? file.name : "UNKNOWN";
         uploaded = true;
@@ -511,22 +515,23 @@ function clearPathLines() {
 }
 
 function startScaling() {
+    disableDownload();
     scaling = true;
-    downloadButton.disabled = true;
     action.innerHTML = "Scaling";
     action.classList.add("active");
     layout.classList.add("scaling");
 }
 
 function stopScaling() {
+    enableDownload();
     scaling = false;
-    downloadButton.disabled = false;
     action.innerHTML = "";
     action.classList.remove("active");
     layout.classList.remove("scaling");
 }
 
 function startMeasuring() {
+    disableDownload();
     measuring = true;
     measureButton.innerHTML = "End measurement";
     action.innerHTML = "Measuring";
@@ -536,6 +541,7 @@ function startMeasuring() {
 }
 
 function stopMeasuring() {
+    enableDownload();
     measuring = false;
     measureButton.innerHTML = "New measurement";
     action.innerHTML = "";
@@ -575,6 +581,8 @@ function dragElement(elmnt) {
         pos4 = e.clientY;
         // set the element's new position:
         move(elmnt, elmnt.offsetLeft - pos1, elmnt.offsetTop - pos2);
+
+        enableDownload();
 
         if(elmnt.classList.contains("measuring-point")){
             calculatePath();
@@ -630,15 +638,32 @@ function closePropSelector() {
     propSelector.style.display = 'none';
 }
 
+function enableDownload() {
+    downloadButton.disabled = false;
+}
+
+function disableDownload() {
+    downloadButton.disabled = true;
+}
+
 function getPropTitle(prop) {
     return `${prop.name} (${prop.widthM}x${prop.lengthM} m)`;
 }
 
-function setLayoutDimensions(url) {
-    const image = new Image();
-    image.src = url;
+async function setLayoutDimensions(url) {
+    const [width, height] = await getImageDimensions(url);
+
     // Height is automatically maxed
-    layoutHeight = layout.clientHeight;
+    LAYOUT_HEIGHT = layout.clientHeight;
     // Get width from height divided by the height to width factor of the original image
-    layoutWidth = layoutHeight / (image.height / image.width);
+    LAYOUT_WIDTH = LAYOUT_HEIGHT / (height / width);
+}
+
+async function getImageDimensions(url) {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.addEventListener("load", () => resolve([image.width, image.height]));
+        image.addEventListener("error", reject);
+        image.src = url;
+    });
 }

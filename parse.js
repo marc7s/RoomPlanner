@@ -1,6 +1,3 @@
-var layoutWidth = null;
-var layoutHeight = null;
-
 async function parseModelJson(files) {
     try {
         const modelJson = files.find(file => file.filename == "model.json");
@@ -26,15 +23,14 @@ async function parsePlan(files, plan) {
     const layoutImageFile = await layoutImage.getData(new zip.BlobWriter());
     layoutFile = layoutImageFile;
     layoutFile.name = layoutImage.filename;
-    const layoutUrl = await uploadFile(layoutFile);
-    layoutImageUrl = layoutUrl;
-    setLayoutDimensions(layoutUrl);
-    uploadLayout(layoutFile);
+    //const layoutUrl = await uploadFile(layoutFile);
+    //layoutImageUrl = layoutUrl;
+
+    await uploadLayout(layoutFile);
 }
 
 function parseScale(scl) {
     if(!scl.distPx || !scl.distM) throw new Error("Cannot parse scale, invalid scale data");
-    downloadButton.disabled = false;
     scale.distPx = parseInt(scl.distPx);
     scale.distM = parseFloat(scl.distM);
     rescale();
@@ -102,7 +98,7 @@ function parsePath(path) {
 }
 
 function xp2x(xp) {
-    return (layoutContainer.clientWidth - layoutWidth) / 2 + xp2px(parseFloat(xp));
+    return (layoutContainer.clientWidth - LAYOUT_WIDTH) / 2 + xp2px(parseFloat(xp));
 }
 
 function yp2y(yp) {
@@ -110,9 +106,9 @@ function yp2y(yp) {
 }
 
 function xp2px(xp) {
-    return xp * layoutWidth;
+    return xp * LAYOUT_WIDTH;
 }
 
 function yp2px(yp) {
-    return yp * layoutHeight;
+    return yp * LAYOUT_HEIGHT;
 }

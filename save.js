@@ -32,7 +32,6 @@
 		}
 
 		async function addFiles() {
-			downloadButton.disabled = true;
 			let savedModel = {
 				version: 1.0,
 				customProps: [],
@@ -59,7 +58,7 @@
 				if(layoutImageUrl && path.length > 0){
 					console.log("Path found, saving to model...");
 					savedModel.path = [];
-					setLayoutDimensions(layoutImageUrl);
+					await setLayoutDimensions(layoutImageUrl);
 					path.forEach(point => {
 						savedModel.path.push({
 							xp: getXP(point.element),
@@ -148,7 +147,6 @@
 					console.error(error);
 				}
 			}));
-			downloadButton.disabled = false;
 		}
 
 		async function onDownloadButtonClick(event) {
@@ -168,18 +166,17 @@
 				anchor.download = "RP model.rp";
 				anchor.dispatchEvent(clickEvent);
 			}
-			downloadButton.disabled = true;
 			event.preventDefault();
 		}
 
 		function getXP(el) {
-			const x = el.x - (layoutContainer.clientWidth - layoutWidth) / 2;
-			return Math.abs(x / layoutWidth);
+			const x = el.x - (layoutContainer.clientWidth - LAYOUT_WIDTH) / 2;
+			return Math.abs(x / LAYOUT_WIDTH);
 		}
 
 		function getYP(el) {
 			const y = el.y;
-			return Math.abs(y / layoutHeight);
+			return Math.abs(y / LAYOUT_HEIGHT);
 		}
 	})();
 })();
